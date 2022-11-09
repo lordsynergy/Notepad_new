@@ -2,11 +2,9 @@ require 'date'
 
 # Класс «Задача», разновидность базового класса «Запись»
 class Task < Post
-
   def initialize
     super
-    # Создаем специфичную для ссылки переменную экземпляра @due_date — время, к
-    # которому задачу нужно выполнить
+
     @due_date = Time.now
   end
 
@@ -21,13 +19,23 @@ class Task < Post
     @due_date = Date.parse(input)
   end
 
-  # Метод to_string должен вернуть все строки, которые мы хотим записать в
-  # файл при записи нашей задачи: строку с дедлайном, описание задачи и дату
-  # создания задачи.
   def to_strings
     deadline = "Крайний срок: #{@due_date.strftime('%Y.%m.%d')}"
     time_string = "Создано: #{@created_at.strftime('%Y.%m.%d, %H:%M:%S')} \n"
 
     [deadline, @text, time_string]
+  end
+
+  # Метод to_db_hash у Задачи добавляет два ключа в хэш
+  def to_db_hash
+    super.merge('text' => @text, 'due_date' => @due_date.to_s)
+  end
+
+  # Метод load_data у Задачи считывает дополнительно due_date задачи
+  def load_data(data_hash)
+    super
+
+    # Достаем из хэша специфичное только для задачи значение due_date
+    @due_date = Date.parse(data_hash['due_date'])
   end
 end

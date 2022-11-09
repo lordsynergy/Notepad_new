@@ -1,3 +1,5 @@
+# encoding: utf-8
+#
 # Этот код необходим только при использовании русских букв на Windows
 if Gem.win_platform?
   Encoding.default_external = Encoding.find(Encoding.locale_charmap)
@@ -14,33 +16,27 @@ require_relative 'lib/link'
 require_relative 'lib/task'
 
 puts 'Привет, я твой блокнот!'
+puts 'Версия 2, записываю новые записи в базу SQLite'
 puts
 puts 'Что хотите записать в блокнот?'
 
-# Запишем в переменную choices массив типов записей, которые можно создать,
-# вызвав у класса Post метод post_types (статический метод).
-choices = Post.post_types
+# Выводим массив возможных типов Записи (поста) с помощью метода post_types
+# класса Post, который теперь возвращает хэш.
+choices = Post.post_types.keys
 
-# Для начала цикла запишем в переменную choice (куда позже будем складывать
-# выбор пользователя) значение -1.
 choice = -1
-
 until choice >= 0 && choice < choices.size
   choices.each_with_index do |type, index|
     puts "\t#{index}. #{type}"
   end
-
-  # Запишем выбор пользователя в переменную choice
   choice = gets.to_i
 end
 
-entry = Post.create(choice)
+entry = Post.create(choices[choice])
 
-# Просим пользователя ввести пост (каким бы он ни был)
 entry.read_from_console
 
-# Сохраняем пост в файл
-entry.save
+# Сохраняем пост в базу данных
+rowid = entry.save_to_db
 
-# Сообщаем пользователю о том, что его запись сохранена в файл.
-puts 'Ваша запись сохранена!'
+puts "Запись сохранена в базе, id = #{rowid}"

@@ -1,0 +1,5 @@
+.idea
+data/Memo*
+data/Task*
+data/Link*
+db/*
