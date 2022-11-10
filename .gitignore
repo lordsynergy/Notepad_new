@@ -2,4 +2,4 @@
 data/Memo*
 data/Task*
 data/Link*
-db/*
+db/notepad.sqlite

@@ -25,21 +25,24 @@ OptionParser.new do |opt|
     exit
   end
 
-  # Опция --type будет передавать тип поста, который мы хотим считать
   opt.on('--type POST_TYPE', 'какой тип постов показывать ' \
          '(по умолчанию любой)') { |o| options[:type] = o }
 
-  # Опция --id передает номер записи в базе данных (идентификатор)
   opt.on('--id POST_ID', 'если задан id — показываем подробно ' \
          ' только этот пост') { |o| options[:id] = o }
 
-  # Опция --limit передает, сколько записей мы хотим прочитать из базы
   opt.on('--limit NUMBER', 'сколько последних постов показать ' \
          '(по умолчанию все)') { |o| options[:limit] = o }
-
 end.parse!
 
-result = Post.find(options[:limit], options[:type], options[:id])
+result =
+  if options[:id].nil?
+    # Если id не передали, ищем все записи по параметрам
+    Post.find_all(options[:limit], options[:type])
+  else
+    # Если передали — забиваем на остальные параметры и ищем по id
+    Post.find_by_id(options[:id])
+  end
 
 if result.is_a? Post
   puts "Запись #{result.class.name}, id = #{options[:id]}"
@@ -54,14 +57,13 @@ else
   print '| @due_date          '
   print '|'
 
-  result&.each do |row|
+  result.each do |row|
     puts
     # Для каждого элемента строки выводим его в нужном формате.
     row.each do |element|
       element_text = "| #{element.to_s.delete("\n")[0..17]}"
 
       element_text << ' ' * (21 - element_text.size)
-      # Выводим текст элемента
       print element_text
     end
 
